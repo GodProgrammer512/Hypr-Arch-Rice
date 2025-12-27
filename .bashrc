@@ -30,56 +30,53 @@ export GPG_TTY=$(tty)
 # Git Status Function:
 git_status()
 {
-    git rev-parse --is-inside-work-tree &>/dev/null || return
+	git rev-parse --is-inside-work-tree &>/dev/null || return
 
-    local branch=$(git branch --show-current 2>/dev/null)
-    [ -z "$branch" ] && return
+	local branch=$(git branch --show-current 2>/dev/null)
+	[ -z "$branch" ] && return
 
-    local out=" ${branch} "
-    local status=$(git status --porcelain=v2 --branch 2>/dev/null)
-    local dirty=0
+	local out=" ${branch} "
+	local status=$(git status --porcelain=v2 --branch 2>/dev/null)
+	local dirty=0
 
-    if echo "$status" | grep -q '^1 .D'; then
-        out="${out}✘"
-	dirty=1
-    fi
+	if echo "$status" | grep -q '^1 .D'; then
+		out="${out}✘"
+		dirty=1
+	fi
 
-    if echo "$status" | grep -q '^1 .M'; then
-        out="${out}!"
-	dirty=1
-    fi
+	if echo "$status" | grep -q '^1 .M'; then
+		out="${out}!"
+		dirty=1
+	fi
 
-    #if echo "$status" | grep -q '^1 A' || echo "$status" | grep -q '^1 R'; then
-    if echo "$status" | grep -q '^1 [^.]'; then
-        out="${out}+"
-	dirty=1
-    fi
+	if echo "$status" | grep -q '^1 [^.]'; then
+		out="${out}+"
+		dirty=1
+	fi
 
-    if echo "$status" | grep -q '^? '; then
-        out="${out}?"
-	dirty=1
-    fi
+	if echo "$status" | grep -q '^? '; then
+		out="${out}?"
+		dirty=1
+	fi
 
-    local ahead=$(echo "$status" | grep '^# branch.ab' | awk '{print $3}' | sed 's/^+//')
-    local behind=$(echo "$status" | grep '^# branch.ab' | awk '{print $4}' | sed 's/^-//')
+	local ahead=$(echo "$status" | grep '^# branch.ab' | awk '{print $3}' | sed 's/^+//')
+	local behind=$(echo "$status" | grep '^# branch.ab' | awk '{print $4}' | sed 's/^-//')
 
-    # commits pra push (>0)
-    if [[ -n "$ahead" && "$ahead" -gt 0 ]]; then
-        out="${out}⇡"
-	dirty=1
-    fi
+	if [[ -n "$ahead" && "$ahead" -gt 0 ]]; then
+		out="${out}⇡"
+		dirty=1
+	fi
 
-    # commits pra pull (>0)
-    if [[ -n "$behind" && "$behind" -gt 0 ]]; then
-        out="${out}⇣"
-	dirty=1
-    fi
+	if [[ -n "$behind" && "$behind" -gt 0 ]]; then
+		out="${out}⇣"
+		dirty=1
+	fi
 
-    if [ "$dirty" -eq 0 ]; then
-        out=" ${branch}"
-    fi
+	if [ "$dirty" -eq 0 ]; then
+		out=" ${branch}"
+	fi
 
-    echo -e "─{\\033[33m$out\\033[m\\033[32m}"
+	echo -e "─{\\033[33m$out\\033[m\\033[32m}"
 }
 
 # Clear terminal after opening it:
